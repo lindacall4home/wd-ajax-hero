@@ -56,5 +56,34 @@
     }
   };
 
-  // ADD YOUR CODE HERE
+  $("#search-btn").click(function(){
+    movies.length = 0;
+    let searchString = $("#search").val();
+    if(searchString.length > 0){
+      let $response = $.getJSON("http://omdbapi.com/?s=" + searchString +"&");
+      $response.done(function(data) {
+        $.each( data.Search, function( i, movie ) {
+          let $plotResponse = $.getJSON("http://omdbapi.com/?i=" + movie.imdbID +"&plot=full&");
+          $plotResponse.done(function (plotData){
+            let movieObj = {
+              id:movie.imdbID,
+              poster:movie.Poster,
+              title:movie.Title,
+              year:movie.Year,
+              plot:plotData.Plot
+            };
+            movies.push(movieObj);
+            renderMovies();
+          });
+        });
+      });
+      $response.fail(function(err){
+        alert("Failed to get movies.  Error : " + err);
+      });
+    }
+    else{
+      alert("Please enter a movie to search for.");
+    }
+    return false;
+  });
 })();
